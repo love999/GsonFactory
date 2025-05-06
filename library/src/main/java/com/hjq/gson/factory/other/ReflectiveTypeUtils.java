@@ -109,7 +109,12 @@ public class ReflectiveTypeUtils {
             public void read(JsonReader reader, Object value) throws IOException, IllegalAccessException {
                 Object fieldValue = typeAdapter.read(reader);
                 if (fieldValue == null) {
+                    if(fieldType.getType() == String.class) {
+                        field.set(value, "");
+                    }
                     return;
+                }else{
+                    field.set(value, fieldValue);
                 }
                 // 如果不为空，则直接赋值，之所以这样写的原因是
                 // 当后台给某个字段赋值 null，例如 { "age" : null } 这种，也会走到这里来
@@ -117,7 +122,6 @@ public class ReflectiveTypeUtils {
                 // 如果是在 Kotlin 上面使用，问题会更加严重，明明在字段上面定义了默认值，并且声明了字段不为空
                 // 如果后台不返回还好，就不会走到这里来，啥事没有，但是如果后台硬是返回了 null
                 // Gson 再反射设置进去，这个时候外层的人一旦使用这个字段，就很可能会触发 NullPointerException
-                field.set(value, fieldValue);
             }
 
             @Override
