@@ -28,9 +28,9 @@ afterEvaluate {
 dependencies {
     // Json 解析框架：https://github.com/google/gson
     // noinspection GradleDependency
-    implementation 'com.google.code.gson:gson:2.10.1'
+    api 'com.google.code.gson:gson:2.10.1'
     // Kotlin 反射依赖：用于反射 Kotlin data class 类对象
-    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.5.10'
+    api 'org.jetbrains.kotlin:kotlin-reflect:1.5.10'
 }
 
 // 防止编码问题
@@ -44,12 +44,14 @@ tasks.withType(Javadoc).configureEach {
 
 tasks.register('sourcesJar', Jar) {
     from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
+    archiveClassifier.set("sources")
 }
 
 tasks.register('javadoc', Javadoc) {
     source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    classpath += files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")
+
     // 排除 Kotlin 相关的类 生成 Java Doc
     // https://github.com/novoda/bintray-release/issues/71
     excludes = ['**/*.kt']
@@ -57,7 +59,7 @@ tasks.register('javadoc', Javadoc) {
 
 tasks.register('javadocJar', Jar) {
     dependsOn javadoc
-    classifier = 'javadoc'
+    archiveClassifier.set("javadoc")
     from javadoc.destinationDir
 }
 
